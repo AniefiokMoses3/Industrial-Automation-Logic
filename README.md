@@ -1,8 +1,8 @@
-Industrial Automation & Control Logic Library
+# Industrial Automation & Control Logic Library
 
 Welcome to my professional portfolio repository. This space serves as an engineering showcase combining industrial automation logic with modern documentation standards.
 
-### Active Project: Project Aries (Sequential Motor Control)
+## Active Project: Project Aries (Sequential Motor Control)
 
 ### Overview
 This project features a two-stage sequential motor control circuit built using IEC 61131-3 Ladder Logic. It implements a critical safety-on delay sequence designed to protect heavy rotating machinery and plant personnel before system activation.
