@@ -35,21 +35,25 @@ The script interfaces directly with the host operating system file layers to aud
 When triggered by a threshold overrun, the script establishes an encrypted communication tunnel to dispatch emergency notifications straight to the production engineering team.
 
 DATA ENVELOPE GENERATION & ROUTING PIPELINE
+
+```text
+          DATA ENVELOPE GENERATION & ROUTING PIPELINE
 +-------------------------------------------------------------+
 | 1. COMPILE PAYLOAD (email.mime.text.MIMEText Object)         |
 |    - Serialize metadata headers (Subject, From, To)          |
 +-------------------------------------------------------------+
-|
-v  Passes stream to...
+                              |
+                              v  Passes stream to...
 +-------------------------------------------------------------+
 | 2. SECURE CARRIER TRANSPORT (smtplib.SMTP Engine)           |
 |    - Dial Gateway (Port 587)                                |
 |    - Upgrade line to TLS Encryption (server.starttls)        |
 |    - Authenticate via Secure App Passwords                  |
 +-------------------------------------------------------------+
-|
-v
-[ DISPATCH INBOX ALERT ]
+                              |
+                              v
+                      [ DISPATCH INBOX ALERT ]
+```
 
 * **Defensive Exception Handling:** Encapsulates network operations inside resilient `try/except` interlocking blocks to ensure network or DNS drops fail gracefully without crashing core logging operations.
 * **Low-Level Socket Architecture:** Utilizes direct routing vectors to maintain high-availability data dispatches across isolated network interfaces.
