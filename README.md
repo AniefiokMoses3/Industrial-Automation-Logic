@@ -20,26 +20,23 @@ Network 2: Monitors runtime constraints and triggers the 5-second accumulation p
 
 ---
 
-##  Infrastructure Automation Subsystem (Python)
+##  Infrastructure Automation Subsystem (Python & Docker v2)
 
-To support the deployment and integrity of our industrial control environment, this repository includes an automated, network-aware workspace monitor (`work_space_monitor.py`).
+To support the deployment and integrity of our industrial control environment, this repository includes an automated, network-aware workspace monitor running as a persistent background daemon (`work_space_monitor.py`).
 
-###  System Monitoring & Metrics Engine
-The script interfaces directly with the host operating system file layers to audit engineering assets, track repository growth, and enforce storage safety parameters.
-
-* **Multi-Asset Filtering:** Programmatically screens the workspace directory to catalog critical industrial project binaries (`.project`), documentation (`.md`), script logic (`.py`), and visual HMI layouts (`.png`).
-* **Deterministic I/O Logging:** Appends continuous operational histories to a localized log (`Work_Space_Report.txt`) stamped with compliant ISO-8601 data tokens (`YYYY-MM-DD HH:MM:SS`) to prevent tracking data overwrites.
-* **Automated Alarm Matrix:** Features a conditional safety switch that acts exactly like a PLC physical high-limit alarm. If the total storage footprint crosses a setpoint threshold ($1000\text{ KB}$), it initializes the network alerting sequence.
+###  Core Architecture & Features
+- **Continuous Worker Loop:** Upgraded from a transient script to a persistent background service using an infinite execution engine with a managed 1-hour hibernation throttle (`time.sleep(3600)`).
+- **Targeted Asset Auditing:** Explicitly tracks critical industrial files (`.project`, `.py`, `.md`, `.png`) while filtering out background storage noise.
+- **Persistent Ledger Logging:** Automatically generates and appends system telemetry to a historical file (`Work_Space_Report.txt`) for audit compliance.
+- **Automated Alarm Matrix:** Features a conditional safety switch that acts exactly like a PLC physical high-limit alarm. If the total storage footprint crosses a setpoint threshold ($1000\text{ KB}$), it initializes the network alerting sequence.
 
 ###  Secure SMTP Alert Transmission Pipeline
 When triggered by a threshold overrun, the script establishes an encrypted communication tunnel to dispatch emergency notifications straight to the production engineering team.
 
-DATA ENVELOPE GENERATION & ROUTING PIPELINE
-
 ```text
           DATA ENVELOPE GENERATION & ROUTING PIPELINE
 +-------------------------------------------------------------+
-| 1. COMPILE PAYLOAD (email.mime.text.MIMEText Object)         |
+| 1. COMPILE PAYLOAD (email.mime.text.MIMEText Object)        |
 |    - Serialize metadata headers (Subject, From, To)          |
 +-------------------------------------------------------------+
                               |
@@ -53,12 +50,31 @@ DATA ENVELOPE GENERATION & ROUTING PIPELINE
                               |
                               v
                       [ DISPATCH INBOX ALERT ]
-```
+```                      
 
-* **Defensive Exception Handling:** Encapsulates network operations inside resilient `try/except` interlocking blocks to ensure network or DNS drops fail gracefully without crashing core logging operations.
-* **Low-Level Socket Architecture:** Utilizes direct routing vectors to maintain high-availability data dispatches across isolated network interfaces.
+ **Defensive Exception Handling:** Encapsulates network operations inside resilient `try/except` interlocking blocks to ensure network or DNS drops fail gracefully without crashing core logging operations.
+ **Low-Level Socket Architecture:** Utilizes direct routing vectors to maintain high-availability data dispatches across isolated network interfaces.
 
-###  Execution & Deployment Instructions
-To run a manual workspace infrastructure audit from your terminal, execute:
-```powershell
-python work_space_monitor.py
+###  Execution & Deployment Guide (Dockerized Background Daemon)
+To deploy this monitoring agent seamlessly as an isolated, persistent service on any infrastructure, follow these steps:
+```bash
+docker build -t work-space-monitor:v2 .
+
+Run the container in Detached Mode (-d) so it runs permanently in the background, injecting secure environment credentials and mapping a local storage volume to allow the ledger logs to persist on your host machine:
+
+docker run -d --name workspace-agent `
+  -e EMAIL_USER="your_authenticated_sender@gmail.com" `
+  -e EMAIL_PASS="your_16_character_app_password" `
+  -e EMAIL_RECEIVER="production_manager@email.com" `
+  -v "${PWD}:/app" `
+  work-space-monitor:v2
+
+  To inspect the real-time runtime tracking logs of your background daemon:
+
+  docker logs workspace-agent
+
+  ### System Ledger Sample Output (`Work_Space_Report.txt`)
+The daemon maintains a physical running file on the host machine containing historical audit logs formatted as follows:
+```text
+[2026-05-29 15:40:12] Asset Checked: 6 | Total Footprint: 1107.14 KB 
+[2026-05-29 16:40:12] Asset Checked: 6 | Total Footprint: 1107.14 KB

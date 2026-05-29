@@ -1,5 +1,6 @@
 import os
 import smtplib
+import time 
 from datetime import datetime
 from email.mime.text import MIMEText
 
@@ -11,17 +12,17 @@ def trigger_production_alert(current_size):
     smtp_port = 587
 
     # SYSTEM ACCESS CREDENTIALS
-    sender_email = "your_authenticated_sender_email@gmail.com"
-    receiver_email = "production_manager_or_your_recipient@email.com"
-    sender_password = "your_16_character_app_password_here"
+    sender_email = os.environ.get("EMAIL_USER", "your_authenticated_sender_email@gmail.com") 
+    receiver_email = os.environ.get("EMAIL_RECEIVER", "production_manager_or_your_recipient@email.com") 
+    sender_password = os.environ.get("EMAIL_PASS", "your_16_character_app_password_here") 
 
     # LET'S COMPILE THE MINE ENVELOP METADATA
     subject = "Alert! Workspace Storage Threshold Exceeded."
     body = (
         f"INDUSTRIAL INFASTRUCTURE MONITORING REPORT\n"
-        f"------------------------------------------------\n"
+        f"----------------------------------------------------------\n"
         f"TIMESTAMP:     {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-        f"Detected Footprint: {current_size:.2f}\n"
+        f"Detected Footprint: {current_size:.2f} KB\n"
         f"Operational Budget: 1000.00 KB \n\n"
         f"Action Required: Please audit the local repository for oversized footprints."
     )
@@ -42,44 +43,63 @@ def trigger_production_alert(current_size):
     except Exception as network_error:
         print(f"[ALARM SYSTEM CRITICAL FAILURE] Transmission blocked: {network_error}")
 
+        pass
+
 # =======================================================================================
 # MAIN AUTOMATION EXECUTION ENGINE
 # =======================================================================================
             
-folder_path = os.getcwd() 
-file_path = os.listdir(folder_path)
+def main():
+    CHECK_INTERVAL = 3600 # Time in seconds between directory scans
+    print("[SYSTEM START] Workspace background monitor agent initialized.")
 
-total_assets_count = 0
-total_work_space_size_kb = 0.0
+    # ---THE ENGINE STARTS---
+    while True:
+        print(f"\n [INFO] Starting schedule workspace audit at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ")
 
-critical_extentions = (".png", ".project", ".md", ".py")
-print("SCANNING WORK SPACE FOR CRITICAL ASSETS...\n")
-print("-" * 50)
+        # SCANNING ENGINE
+        folder_path = os.getcwd() 
+        file_path = os.listdir(folder_path)
 
-for file in file_path:
-    if file.endswith(critical_extentions):
-        full_path = os.path.join(folder_path, file)
+        total_assets_count = 0
+        total_work_space_size_kb = 0.0
 
-        file_size_kb = os.path.getsize(full_path) / 1024
+        critical_extentions = (".png", ".project", ".md", ".py")
+        print("SCANNING WORK SPACE FOR CRITICAL ASSETS...\n")
+        print("-" * 50)
 
-        print(f"Assets: {file:<35} | size: {file_size_kb: .2f} KB")
+        for file in file_path:
+            if file.endswith(critical_extentions):
+                full_path = os.path.join(folder_path, file)
+                file_size_kb = os.path.getsize(full_path) / 1024
 
-        total_assets_count += 1
-        total_work_space_size_kb += file_size_kb
-#Log metrics to our running append file
-current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                print(f"Assets: {file:<35} | size: {file_size_kb: .2f} KB")
 
-with open("Work_Space_Report.txt", "a") as report:
-    report.write(f"[{current_time}] Asset Checked: {total_assets_count} | Total Footprint: {total_work_space_size_kb: .2F} KB \n")
+                total_assets_count += 1
+                total_work_space_size_kb += file_size_kb
 
-print("-" * 50)
-print(f"Audit Complete! Total Workspace Footprint: {total_work_space_size_kb: .2f} KB")  
+        # Log metrics to our running append file
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-# --------- COMPARATIVE AUTOMATION SWITCH ---------------
-if total_work_space_size_kb > 1000.00:
-    print("\n[WARNING] Storage budget exceeded! initializing alert network...")
-    trigger_production_alert(total_work_space_size_kb)
-else:
-    print("\n[STATUS] Workspace operations within safe threshold limits.")    
+        with open("Work_Space_Report.txt", "a") as report:
+            report.write(f"[{current_time}] Asset Checked: {total_assets_count} | Total Footprint: {total_work_space_size_kb: .2F} KB \n")
+
+        print("-" * 50)
+        print(f"Audit Complete! Total Workspace Footprint: {total_work_space_size_kb: .2f} KB")  
+
+        # --------- COMPARATIVE AUTOMATION SWITCH ---------------
+        if total_work_space_size_kb > 1000.00:
+            print("\n[WARNING] Storage budget exceeded! initializing alert network...")
+            trigger_production_alert(total_work_space_size_kb)
+        else:
+            print("\n[STATUS] Workspace operations within safe threshold limits.")
+
+        # ---THE CONTROL VALVE---
+        print(f"\n[INFO] Audit complete. Hibernating for {CHECK_INTERVAL} seconds...")
+        time.sleep(CHECK_INTERVAL)
+
+if __name__ == "__main__":
+    main()            
+
 
 
