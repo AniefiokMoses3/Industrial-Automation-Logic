@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # =====================================================================
+  # SERVICE 1: THE VIRTUAL INDUSTRIAL PLC ENGINE
+  # =====================================================================
+  virtual_plc:
+    build: .
+    container_name: plc_sim_server
+    # Override the default Dockerfile command to launch the PLC server
+    command: ["python", "modbus_lab_projects/virtual_plc.py"]
+    environment:
+      - PLC_BIND_IP=0.0.0.0
+      - PLC_BIND_PORT=5020
+    ports:
+      - "5020:5020" # Expose to host machine for external HMI/SCADA connections
+    networks:
+      - industrial_network
+
+  # =====================================================================
+  # SERVICE 2: THE DATA ACQUISITION SCADA CLIENT
+  # =====================================================================
+  scada_client:
+    build: .
+    container_name: scada_analytics_client
+    # Override the default Dockerfile command to launch the SCADA client
+    command: ["python", "modbus_lab_projects/scada_client.py"]
+    environment:
+      - PLC_IP=virtual_plc  # Docker DNS maps the service name to its internal IP
+      - PLC_PORT=5020
+      - POLL_INTERVAL=2
+    depends_on:
+      - virtual_plc # Ensures the PLC boots up before the client tries to poll it
+    networks:
+      - industrial_network
+
+networks:
+  industrial_network:
+    driver: bridge
