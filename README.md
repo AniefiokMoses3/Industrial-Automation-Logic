@@ -78,3 +78,23 @@ The daemon maintains a physical running file on the host machine containing hist
 ```text
 [2026-05-29 15:40:12] Asset Checked: 6 | Total Footprint: 1107.14 KB 
 [2026-05-29 16:40:12] Asset Checked: 6 | Total Footprint: 1107.14 KB
+
+
+
+#  Industrial Automation & Systems Optimization Suite
+
+Welcome to the ultimate automation control repository. This suite contains independent, production-grade tools designed to handle both localized system tracking and simulated industrial network environments.
+
+---
+
+##  Included Applications & Modules
+
+### 1.  Multi-Service Modbus TCP Lab (`/modbus_lab_projects`)
+A multi-service industrial automation simulation environment designed to decouple edge programmable logic controller (PLC) simulations from SCADA data acquisition layers. 
+* **Virtual PLC Engine (`virtual_plc.py`):** Simulates an industrial edge controller binding to port `5020`.
+* **SCADA Analytics Client (`scada_client.py`):** Replicates a supervisory control system executing deterministic data polling intervals.
+* **Orchestration:** Managed via `docker-compose.yml` to spin up an isolated virtual network bridge.
+
+####  Quick Start (Modbus Lab)
+```bash
+docker-compose up --build
