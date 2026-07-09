@@ -73,14 +73,16 @@ docker run -d --name workspace-agent `
 
   docker logs workspace-agent
 
+```
 ### System Ledger Sample Output (`Work_Space_Report.txt`)
+
 The daemon maintains a physical running file on the host machine containing historical audit logs formatted as follows:
 ```text
 [2026-05-29 15:40:12] Asset Checked: 6 | Total Footprint: 1107.14 KB 
 [2026-05-29 16:40:12] Asset Checked: 6 | Total Footprint: 1107.14 KB
 
 
-
+```
 #  Industrial Automation & Systems Optimization Suite
 
 Welcome to the ultimate automation control repository. This suite contains independent, production-grade tools designed to handle both localized system tracking and simulated industrial network environments.
